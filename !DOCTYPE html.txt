@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Casaideas Perú — Prototipo</title>
+  <style>
+    /* ====== Reset mínimo y variables ====== */
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #fff;
+      --bg-soft: #fff7ed; /* naranja muy suave */
+      --text: #0f172a;   /* slate-900 */
+      --muted: #475569;  /* slate-600 */
+      --brand: #ea580c;  /* orange-600 */
+      --brand-2: #f59e0b;/* amber-500 */
+      --surface: #ffffff;
+      --border: #e5e7eb; /* gray-200 */
+      --success: #059669;/* emerald-600 */
+    }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color: var(--text);
+      background: linear-gradient(180deg, #fff, #fff7ed 50%, #fff 100%);
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    .container { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+    .grid { display: grid; gap: 16px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid var(--border); background: var(--surface);
+      padding: 10px 14px; border-radius: 999px; cursor: pointer; font-weight: 600;
+    }
+    .btn.primary { background: var(--brand); color: white; border-color: var(--brand); }
+    .btn.ghost { background: transparent; }
+    .btn.block { width: 100%; justify-content: center; }
+    .tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; }
+    .tag.eco { background: #d1fae5; color: #065f46; } /* emerald-100/800 */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 6px 18px rgba(15, 23, 42, .06); }
+    .card .p { padding: 16px; }
+    .section { padding: 56px 0; }
+    .section h2 { font-size: 28px; margin: 0 0 8px; }
+    .muted { color: var(--muted); }
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-8 { gap: 32px; }
+    .gap-4 { gap: 16px; }
+    .rounded { border-radius: 16px; }
+    .shadow { box-shadow: 0 10px 24px rgba(0,0,0,.08); }
+    /* Header */
+    header { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(10px); background: rgba(255,255,255,.75); border-bottom: 1px solid var(--border); }
+    nav { display: flex; align-items: center; gap: 16px; }
+    nav a { padding: 8px 12px; border-radius: 999px; font-weight: 600; color: var(--muted); }
+    nav a:hover { background: var(--bg-soft); color: var(--text); }
+    .brand { display:flex; align-items:center; gap: 10px; font-weight: 700; }
+    .badge { font-size: 12px; color: var(--muted); }
+    /* Hero */
+    .hero { background: linear-gradient(135deg, #fff7ed, #fffbeb); }
+    .hero h1 { font-size: clamp(28px, 5vw, 44px); margin: 0; }
+    .hero p { color: var(--muted); }
+    /* Grids */
+    .cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .cols-4 { grid-template-columns: repeat(4, 1fr); }
+    @media (max-width: 900px) {
+      .cols-2, .cols-3, .cols-4 { grid-template-columns: 1fr; }
+    }
+    /* Footer */
+    footer { border-top: 1px solid var(--border); }
+    /* Floating */
+    .floating { position: fixed; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 10px; z-index: 30; }
+    .floating .whatsapp { background: #25D366; color: white; border-color: #25D366; }
+    /* Modals */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 40;}
+    .modal { background: white; border-radius: 16px; max-width: 920px; width: 100%; overflow: hidden; }
+    .modal .header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 700; display:flex; align-items:center; justify-content: space-between; }
+    .modal .body { padding: 16px; }
+    .close { cursor:pointer; font-weight:700; }
+    /* Simple form */
+    label { font-size: 14px; font-weight: 600; }
+    select, input[type='text'], input[type='email'], textarea {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 14px;
+    }
+    input[type='range'] { width: 100%; }
+    .row { display: grid; gap: 12px; grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 900px){ .row { grid-template-columns: 1fr; } }
+    .pill { padding: 3px 10px; border-radius: 999px; background: #fff; border: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+    .kpis { display:flex; gap:12px; flex-wrap: wrap; }
+    .kpis .pill { background: #f1f5f9; }
+  </style>
+</head>
+<body>
+  <!-- ====== Header ====== -->
+  <header>
+    <div class="container flex items-center justify-between" style="padding:10px 16px;">
+      <div class="brand">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#ea580c" stroke-width="2"/><path d="M7 14l3-3 3 3 4-4" stroke="#ea580c" stroke-width="2" fill="none"/></svg>
+        <span>Casaideas Perú</span>
+        <span class="badge">Inspiración + Ecommerce</span>
+      </div>
+      <nav>
+        <a href="#inicio">Inicio</a>
+        <a href="#arma">Arma tu espacio</a>
+        <a href="#eco">Eco</a>
+        <a href="#puntos">Puntos Casa</a>
+        <a href="#comunidad">Comunidad</a>
+        <a href="#contacto">Contacto</a>
+        <a href="#" id="openGift" class="pill">🎁 Regalos</a>
+        <a href="#" id="openChat" class="pill">💬 Chat</a>
+        <a class="pill" href="#" id="cartBtn">🛒 <span id="cartCount">0</span> • <span id="cartTotal">S/0.00</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ====== Hero ====== -->
+  <section id="inicio" class="hero section">
+    <div class="container grid cols-2 items-center gap-8">
+      <div>
+        <h1>Inspira, arma y ama tu hogar</h1>
+        <p class="muted">Una experiencia cálida, inspiradora y personalizada para convertir tu casa en un reflejo de tu identidad. Envío gratis desde S/199 • Retiro exprés • Puntos Casa.</p>
+        <div class="kpis" style="margin:16px 0 0;">
+          <span class="pill">Modo inspiración 360°</span>
+          <span class="pill">Asistente de Diseño IA</span>
+          <span class="pill">Filtro por estilo y color</span>
+          <span class="pill">Eco-amigables</span>
+        </div>
+        <div style="margin-top:16px;">
+          <button class="btn primary" onclick="document.querySelector('#arma').scrollIntoView({behavior:'smooth'})">Arma tu espacio</button>
+          <a class="btn" href="#eco">Ver eco-amigables</a>
+        </div>
+      </div>
+      <div class="card shadow">
+        <img src="https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?q=80&w=1600&auto=format&fit=crop" alt="Ambiente inspiración"/>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== Arma tu espacio ====== -->
+  <section id="arma" class="section">
+    <div class="container">
+      <h2>Arma tu espacio</h2>
+      <p class="muted">Selecciona estilo, color o temporada y te sugerimos productos. Puedes añadirlos al carrito con un clic.</p>
+      <div class="card">
+        <div class="p">
+          <div class="row">
+            <div>
+              <label>Estilo</label>
+              <select id="styleSelect">
+                <option value="">Todos</option>
+              </select>
+            </div>
+            <div>
+              <label>Color</label>
+              <select id="colorSelect">
+                <option value="">Todos</option>
+              </select>
+            </div>
+            <div>
+              <label>Temporada</label>
+              <select id="seasonSelect">
+                <option value="">Automática</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:12px">
+            <button class="btn" id="addRecommended">➕ Agregar sugeridos al carrito</button>
+          </div>
+        </div>
+        <div class="p">
+          <div id="designerGrid" class="grid cols-3"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== Eco ====== -->
+  <section id="eco" class="section" style="background:#fffbeb">
+    <div class="container">
+      <h2>Compromiso Sostenible</h2>
+      <div class="grid cols-3">
+        <div class="card"><div class="p"><h3>Eco-amigables destacados</h3><p class="muted">Categoría con etiquetas claras de materiales reciclados y procesos responsables.</p></div></div>
+        <div class="card"><div class="p"><h3>Delivery con empaques verdes</h3><p class="muted">Opción de empaques reutilizables o 100% reciclables al finalizar la compra.</p></div></div>
+        <div class="card"><div class="p"><h3>Transparencia</h3><p class="muted">Información visible sobre orígenes, certificaciones y huella de cada línea.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== Puntos Casa ====== -->
+  <section id="puntos" class="section">
+    <div class="container grid cols-2 items-center gap-8">
+      <div>
+        <h2>Programa de fidelización: Puntos Casa</h2>
+        <p class="muted">Gana puntos por comprar, participar en retos y compartir tu deco. Canjéalos por descuentos y envíos gratis.</p>
+        <div style="margin-top:12px;">
+          <button class="btn primary">Únete gratis</button>
+          <a class="btn" href="#contacto">Ver beneficios</a>
+        </div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=1400&auto=format&fit=crop" alt="Puntos Casa"/>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== Comunidad ====== -->
+  <section id="comunidad" class="section">
+    <div class="container">
+      <h2>Comunidad Casaideas</h2>
+      <div id="ugcGrid" class="grid cols-3"></div>
+      <div style="margin-top:16px;" class="muted">Comparte tu foto con el hashtag <b>#MiCasaideas</b> y participa por puntos extra.</div>
+    </div>
+  </section>
+
+  <!-- ====== Editorial / Ideas ====== -->
+  <section class="section" style="background:#fff7ed">
+    <div class="container">
+      <h2>Ideas y Consejos</h2>
+      <div id="blogGrid" class="grid cols-3"></div>
+    </div>
+  </section>
+
+  <!-- ====== Contacto ====== -->
+  <section id="contacto" class="section">
+    <div class="container grid cols-2 gap-8">
+      <div>
+        <h2>Contacto</h2>
+        <p class="muted">¿Necesitas ayuda? Un estilista digital te responde 24/7.</p>
+        <form onsubmit="event.preventDefault(); alert('¡Gracias! Te escribiremos pronto.'); this.reset();">
+          <div class="grid" style="gap:12px;">
+            <div>
+              <label>Nombre</label>
+              <input type="text" required placeholder="Tu nombre" />
+            </div>
+            <div>
+              <label>Correo</label>
+              <input type="email" required placeholder="tucorreo@ejemplo.com" />
+            </div>
+            <div>
+              <label>Mensaje</label>
+              <textarea rows="5" required placeholder="¿En qué te ayudamos?"></textarea>
+            </div>
+            <button class="btn primary" type="submit">Enviar</button>
+          </div>
+        </form>
+      </div>
+      <div class="card"><img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1600&auto=format&fit=crop" alt="Atención y calidez"/></div>
+    </div>
+  </section>
+
+  <!-- ====== Footer ====== -->
+  <footer>
+    <div class="container grid cols-3" style="padding:24px 16px;">
+      <div><strong>Casaideas Perú</strong><p class="muted">Una experiencia digital cálida, inspiradora y personalizada para tu hogar.</p></div>
+      <div><strong>Ayuda</strong><p class="muted">Envíos • Cambios • Contacto</p></div>
+      <div><strong>Sostenibilidad</strong><p class="muted">Materiales reciclados • Empaques responsables • Transparencia</p></div>
+    </div>
+  </footer>
+
+  <!-- ====== Floating actions ====== -->
+  <div class="floating">
+    <button class="btn shadow" id="fabChat">💬 Chat</button>
+    <a class="btn whatsapp shadow" href="https://wa.me/51999999999" target="_blank">WhatsApp</a>
+  </div>
+
+  <!-- ====== Modal: Regalos ====== -->
+  <div class="modal-backdrop" id="giftModal">
+    <div class="modal">
+      <div class="header">
+        <span>Planificador de Regalos</span>
+        <span class="close" data-close="#giftModal">×</span>
+      </div>
+      <div class="body">
+        <div class="row">
+          <div>
+            <label>Ocasión</label>
+            <select id="giftOccasion">
+              <option>Cumpleaños</option>
+              <option>Aniversario</option>
+              <option>Nuevo Hogar</option>
+              <option>Gracias</option>
+            </select>
+          </div>
+          <div>
+            <label>Presupuesto (S/)</label>
+            <input type="range" id="budgetRange" min="30" max="250" step="10" value="100" />
+            <div class="muted">Hasta: <b id="budgetText">S/100</b></div>
+          </div>
+          <div style="display:flex;align-items:flex-end;">
+            <button class="btn primary block" id="addGifts">➕ Agregar sugeridos</button>
+          </div>
+        </div>
+        <div style="margin-top:16px;">
+          <div class="muted">Sugerencias:</div>
+          <div id="giftList" class="grid cols-3" style="margin-top:8px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== Modal: Chat simple ====== -->
+  <div class="modal-backdrop" id="chatModal">
+    <div class="modal" style="max-width:420px;">
+      <div class="header">
+        <span>Asistente Casaideas</span>
+        <span class="close" data-close="#chatModal">×</span>
+      </div>
+      <div class="body">
+        <div class="muted" style="margin-bottom:8px;">¡Hola! Soy tu estilista digital 24/7. ¿Buscas ideas o un producto?</div>
+        <input id="chatInput" type="text" placeholder="Ej.: cojines boho beige" />
+        <button class="btn primary block" style="margin-top:8px;" id="chatSend">Enviar</button>
+        <div id="chatLog" class="muted" style="margin-top:8px; font-size:14px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== Data ======
+    const STYLES = ["Nórdico","Boho","Minimal","Industrial","Clásico"];
+    const COLORS = ["Blanco","Beige","Verde","Terracota","Gris"];
+    const SEASONS = ["Otoño","Invierno","Primavera","Verano"];
+    const PRODUCTS = [
+      { id: 1, name: "Cojín Trenzado", price: 59.9, style: "Boho", color: "Terracota", eco: true, img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1200&auto=format&fit=crop" },
+      { id: 2, name: "Manta Polar", price: 79.9, style: "Nórdico", color: "Beige", eco: false, img: "https://images.unsplash.com/photo-1505873242700-f289a29e1e0f?q=80&w=1200&auto=format&fit=crop" },
+      { id: 3, name: "Vela Aromática", price: 29.9, style: "Minimal", color: "Blanco", eco: true, img: "https://images.unsplash.com/photo-1504198266285-165a12b2e06b?q=80&w=1200&auto=format&fit=crop" },
+      { id: 4, name: "Lámpara de Mesa", price: 149.9, style: "Industrial", color: "Gris", eco: false, img: "https://images.unsplash.com/photo-1493666438817-866a91353ca9?q=80&w=1200&auto=format&fit=crop" },
+      { id: 5, name: "Juego de Tazas", price: 49.9, style: "Clásico", color: "Verde", eco: true, img: "https://images.unsplash.com/photo-1524594227084-3ff3a3cc2fbe?q=80&w=1200&auto=format&fit=crop" },
+      { id: 6, name: "Alfombra Algodón", price: 189.9, style: "Boho", color: "Beige", eco: true, img: "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=1200&auto=format&fit=crop" },
+    ];
+    const BLOG = [
+      { id: 1, title: "Guía de colores cálidos para tu sala", tag: "Decoración", img: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop" },
+      { id: 2, title: "DIY: renueva tu dormitorio en 1 tarde", tag: "DIY", img: "https://images.unsplash.com/photo-1582582429416-0ef9c067ffae?q=80&w=1200&auto=format&fit=crop" },
+      { id: 3, title: "Bienestar en casa: texturas que abrazan", tag: "Bienestar", img: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1200&auto=format&fit=crop" },
+    ];
+    const UGC = [
+      { id: 1, user: "@maria_home", img: "https://images.unsplash.com/photo-1505692794403-34d4982f88aa?q=80&w=1100&auto=format&fit=crop" },
+      { id: 2, user: "@deco.ro", img: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1100&auto=format&fit=crop" },
+      { id: 3, user: "@casitaverde", img: "https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?q=80&w=1100&auto=format&fit=crop" },
+    ];
+    const state = { cart: [] };
+
+    const PEN = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
+
+    // ====== Helpers ======
+    function qs(sel, parent=document){ return parent.querySelector(sel); }
+    function qsa(sel, parent=document){ return Array.from(parent.querySelectorAll(sel)); }
+    function setCartInfo() {
+      const total = state.cart.reduce((sum, id) => {
+        const p = PRODUCTS.find(x => x.id === id);
+        return sum + (p ? p.price : 0);
+      }, 0);
+      qs('#cartCount').textContent = String(state.cart.length);
+      qs('#cartTotal').textContent = PEN.format(total);
+    }
+    function addToCart(id) {
+      state.cart.push(id);
+      setCartInfo();
+    }
+
+    function productCard(p){
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `
+        <img src="${p.img}" alt="${p.name}" style="height:180px; object-fit:cover;"/>
+        <div class="p">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <div>
+              <div style="font-weight:700">${p.name}</div>
+              <div class="muted" style="font-size:14px">${p.style} • ${p.color}</div>
+            </div>
+            ${p.eco ? '<span class="tag eco">♻ Eco</span>' : ''}
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px;">
+            <strong>${PEN.format(p.price)}</strong>
+            <button class="btn" data-add="${p.id}">Añadir</button>
+          </div>
+        </div>`;
+      div.addEventListener('click',(e)=>{
+        const btn = e.target.closest('[data-add]');
+        if(btn){ addToCart(p.id); }
+      });
+      return div;
+    }
+
+    // ====== Render inicial ======
+    function renderFilters(){
+      const styleSel = qs('#styleSelect'), colorSel = qs('#colorSelect'), seasonSel = qs('#seasonSelect');
+      STYLES.forEach(s => { const o=document.createElement('option'); o.value=s; o.textContent=s; styleSel.appendChild(o); });
+      COLORS.forEach(c => { const o=document.createElement('option'); o.value=c; o.textContent=c; colorSel.appendChild(o); });
+      SEASONS.forEach(s => { const o=document.createElement('option'); o.value=s; o.textContent=s; seasonSel.appendChild(o); });
+    }
+    function renderDesigner(){
+      const grid = qs('#designerGrid');
+      grid.innerHTML = '';
+      const style = qs('#styleSelect').value;
+      const color = qs('#colorSelect').value;
+      const results = PRODUCTS.filter(p => (!style || p.style === style) && (!color || p.color === color));
+      results.forEach(p => grid.appendChild(productCard(p)));
+      return results;
+    }
+    function renderUGC(){
+      const grid = qs('#ugcGrid'); grid.innerHTML='';
+      UGC.forEach(x=>{
+        const item = document.createElement('div');
+        item.className='card';
+        item.innerHTML = <img src="${x.img}" alt="${x.user}" style="height:220px; object-fit:cover;"/> <div class="p muted">${x.user}</div>;
+        grid.appendChild(item);
+      });
+    }
+    function renderBlog(){
+      const grid = qs('#blogGrid'); grid.innerHTML='';
+      BLOG.forEach(p=>{
+        const item=document.createElement('div');
+        item.className='card';
+        item.innerHTML = <img src="${p.img}" alt="${p.title}" style="height:160px; object-fit:cover;"/> <div class="p"><div class="muted" style="font-size:12px; text-transform:uppercase;">${p.tag}</div><div style="font-weight:700; margin-top:4px;">${p.title}</div><a href="#" class="btn ghost" style="padding-left:0;">Leer más →</a></div>;
+        grid.appendChild(item);
+      });
+    }
+
+    // ====== Regalos ======
+    function openModal(id){ qs(id).style.display='flex'; }
+    function closeModal(id){ qs(id).style.display='none'; }
+    function renderGifts(){
+      const budget = Number(qs('#budgetRange').value);
+      qs('#budgetText').textContent = PEN.format(budget);
+      const recos = PRODUCTS.filter(p => p.price <= budget).slice(0,3);
+      const list = qs('#giftList'); list.innerHTML='';
+      recos.forEach(p => list.appendChild(productCard(p)));
+      return recos;
+    }
+
+    // ====== Chat ======
+    function appendChat(text, from='user'){
+      const log = qs('#chatLog');
+      const line = document.createElement('div');
+      line.textContent = (from==='user' ? 'Tú: ' : 'Asistente: ') + text;
+      log.appendChild(line);
+    }
+
+    // ====== Eventos ======
+    document.addEventListener('DOMContentLoaded', ()=>{
+      renderFilters();
+      renderDesigner();
+      renderUGC();
+      renderBlog();
+      setCartInfo();
+      renderGifts();
+
+      // filtros
+      ['#styleSelect','#colorSelect','#seasonSelect'].forEach(sel => {
+        qs(sel).addEventListener('change', renderDesigner);
+      });
+
+      // agregar recomendados
+      qs('#addRecommended').addEventListener('click', ()=>{
+        const results = renderDesigner();
+        results.forEach(r => state.cart.push(r.id));
+        setCartInfo();
+        alert('Productos sugeridos añadidos al carrito.');
+      });
+
+      // carrito
+      qs('#cartBtn').addEventListener('click', ()=>{
+        alert('Carrito: ' + state.cart.length + ' ítems • Total ' + qs('#cartTotal').textContent);
+      });
+
+      // regalos
+      qs('#openGift').addEventListener('click', (e)=>{ e.preventDefault(); openModal('#giftModal'); renderGifts(); });
+      qsa('.close').forEach(x => x.addEventListener('click', ()=> closeModal(x.getAttribute('data-close')) ));
+      qs('#budgetRange').addEventListener('input', renderGifts);
+      qs('#addGifts').addEventListener('click', ()=>{
+        const recos = renderGifts();
+        recos.forEach(r => state.cart.push(r.id));
+        setCartInfo();
+        alert('Regalos añadidos al carrito.');
+      });
+
+      // chat
+      const openChat = ()=> openModal('#chatModal');
+      qs('#openChat').addEventListener('click', (e)=>{ e.preventDefault(); openChat(); });
+      qs('#fabChat').addEventListener('click', openChat);
+      qs('#chatSend').addEventListener('click', ()=>{
+        const input = qs('#chatInput');
+        if(!input.value.trim()) return;
+        appendChat(input.value, 'user');
+        // respuesta simple simulada
+        setTimeout(()=>{
+          appendChat('Te sugiero ver los productos Boho en color Beige dentro de \"Arma tu espacio\". 🙂', 'bot');
+        }, 400);
+        input.value='';
+      });
+    });
+  </script>
+</body>
+</html>
